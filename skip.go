@@ -1,11 +1,30 @@
 package iter
 
-type skipCore[T any] struct {
-	Iterator[T]
+// Skip returns a new Iterator that advances the current iterator by n before
+// returning the Next element.
+func (iter Iterator[E]) Skip(n uint) Iterator[E] {
+	return FromCore[E](&skipCore[E]{
+		Iterator: iter,
+		n:        n,
+	})
+}
+
+// SkipWhile returns a new Iterator that will skip values matching the provided
+// Predicate until the first element that does not match. After the first
+// non-matching element, the predicate is no longer applied.
+func (iter Iterator[E]) SkipWhile(pred Predicate[E]) Iterator[E] {
+	return FromCore[E](&skipWhileCore[E]{
+		Core: iter.core,
+		pred: pred,
+	})
+}
+
+type skipCore[E any] struct {
+	Iterator[E]
 	n uint
 }
 
-func (sc *skipCore[T]) Next() (T, bool) {
+func (sc *skipCore[E]) Next() (E, bool) {
 	if sc.n > 0 {
 		sc.Iterator.AdvanceBy(sc.n)
 		sc.n = 0
@@ -13,32 +32,18 @@ func (sc *skipCore[T]) Next() (T, bool) {
 	return sc.Iterator.Next()
 }
 
-func (iter Iterator[T]) Skip(n uint) Iterator[T] {
-	return FromCore[T](&skipCore[T]{
-		Iterator: iter,
-		n:        n,
-	})
-}
-
-type skipWhileCore[T any] struct {
-	Core[T]
-	Fn   func(T) bool
+type skipWhileCore[E any] struct {
+	Core[E]
+	pred Predicate[E]
 	done bool
 }
 
-func (swc *skipWhileCore[T]) Next() (T, bool) {
+func (swc *skipWhileCore[E]) Next() (E, bool) {
 	for next, ok := swc.Core.Next(); ok; next, ok = swc.Core.Next() {
-		if swc.done = swc.done || !swc.Fn(next); swc.done {
+		if swc.done = swc.done || !swc.pred(next); swc.done {
 			return next, ok
 		}
 	}
 
-	return empty[T]()
-}
-
-func (iter Iterator[T]) SkipWhile(fn func(T) bool) Iterator[T] {
-	return FromCore[T](&skipWhileCore[T]{
-		Core: iter.core.core(),
-		Fn:   fn,
-	})
+	return empty[E]()
 }

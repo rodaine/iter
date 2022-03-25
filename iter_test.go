@@ -1,8 +1,10 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
+	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIterator_Count(t *testing.T) {
@@ -99,6 +101,26 @@ func TestIterator_ForEach(t *testing.T) {
 	assert.Equal(t, 24, product)
 }
 
+func TestIterator_TryForEach(t *testing.T) {
+	t.Parallel()
+
+	evenProduct := 1
+	fn := func(n int) error {
+		if n%2 != 0 {
+			return fmt.Errorf("%d is not even", n)
+		}
+		evenProduct *= n
+		return nil
+	}
+
+	err := FromItems(2, 4, 6).TryForEach(fn)
+	assert.NoError(t, err)
+	assert.Equal(t, 48, evenProduct)
+
+	err = FromItems(1, 2, 3).TryForEach(fn)
+	assert.Error(t, err)
+}
+
 func TestIterator_Partition(t *testing.T) {
 	t.Parallel()
 
@@ -107,4 +129,80 @@ func TestIterator_Partition(t *testing.T) {
 
 	assert.Equal(t, []int{0, 2, 4}, even)
 	assert.Equal(t, []int{1, 3}, odd)
+}
+
+func TestIterator_All(t *testing.T) {
+	t.Parallel()
+
+	evenFn := func(n int) bool { return n%2 == 0 }
+
+	ok := FromItems(2, 4, 6).All(evenFn)
+	assert.True(t, ok)
+	ok = FromItems(0, 1, 2).All(evenFn)
+	assert.False(t, ok)
+}
+
+func TestIterator_Any(t *testing.T) {
+	t.Parallel()
+
+	evenFn := func(n int) bool { return n%2 == 0 }
+
+	ok := FromItems(1, 2, 3).Any(evenFn)
+	assert.True(t, ok)
+	ok = FromItems(1, 3, 5).Any(evenFn)
+	assert.False(t, ok)
+}
+
+func TestIterator_Find(t *testing.T) {
+	t.Parallel()
+
+	evenFn := func(n int) bool { return n%2 == 0 }
+
+	match, ok := FromItems(1, 2, 3).Find(evenFn)
+	assert.Equal(t, 2, match)
+	assert.True(t, ok)
+
+	match, ok = FromItems(1, 3, 5).Find(evenFn)
+	assert.Zero(t, match)
+	assert.False(t, ok)
+}
+
+func TestIterator_TryFind(t *testing.T) {
+	t.Parallel()
+
+	evenPositiveFn := func(n int) (bool, error) {
+		if n <= 0 {
+			return false, fmt.Errorf("%d must be positive", n)
+		}
+		return n%2 == 0, nil
+	}
+
+	match, ok, err := FromItems(1, 2, 3).TryFind(evenPositiveFn)
+	assert.Equal(t, 2, match)
+	assert.True(t, ok)
+	assert.NoError(t, err)
+
+	match, ok, err = FromItems(1, 3, 5).TryFind(evenPositiveFn)
+	assert.Zero(t, match)
+	assert.False(t, ok)
+	assert.NoError(t, err)
+
+	match, ok, err = FromItems(0, 1, 2).TryFind(evenPositiveFn)
+	assert.Zero(t, match)
+	assert.False(t, ok)
+	assert.Error(t, err)
+}
+
+func TestIterator_Position(t *testing.T) {
+	t.Parallel()
+
+	evenFn := func(n int) bool { return n%2 == 0 }
+
+	pos, ok := FromItems(1, 2, 3).Position(evenFn)
+	assert.Equal(t, uint(1), pos)
+	assert.True(t, ok)
+
+	pos, ok = FromItems(1, 3, 5).Position(evenFn)
+	assert.Zero(t, pos)
+	assert.False(t, ok)
 }

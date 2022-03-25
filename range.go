@@ -1,79 +1,88 @@
 package iter
 
-type Integer interface {
-	int | int8 | int16 | int32 | int64 |
-		uint | uint8 | uint16 | uint32 | uint64 |
-		uintptr
-}
+import "golang.org/x/exp/constraints"
 
-type countUpCore[T Integer] struct {
-	next T
-}
-
-func (cc *countUpCore[T]) Next() (T, bool) {
-	next := cc.next
-	cc.next++
-	return next, true
-}
-
-func CountUp[T Integer](start T) Iterator[T] {
-	return FromCore[T](&countUpCore[T]{
+// CountUpBy returns an unbounded Iterator beginning (inclusively) at the
+// provided start value, and incrementing by the provided step. For an iterator
+// that terminates, use RangeBy instead.
+func CountUpBy[I constraints.Integer](start, step I) Iterator[I] {
+	return FromCore[I](&countUpByCore[I]{
 		next: start,
+		step: step,
 	})
 }
 
-type countDownCore[T Integer] struct {
-	next T
-}
-
-func (cc *countDownCore[T]) Next() (T, bool) {
-	next := cc.next
-	cc.next--
-	return next, true
-}
-
-func CountDown[T Integer](start T) Iterator[T] {
-	return FromCore[T](&countDownCore[T]{
+// CountDownBy returns an unbounded Iterator beginning (inclusively) at the
+// provided start value, and decrements by the provided step. For an iterator
+// that terminates, use RangeBy instead.
+func CountDownBy[I constraints.Integer](start, step I) Iterator[I] {
+	return FromCore[I](&countDownByCore[I]{
 		next: start,
+		step: step,
 	})
 }
 
-type rangeUpCore[T Integer] struct {
-	ct  *countUpCore[T]
-	max T
-}
-
-func (rc rangeUpCore[T]) Next() (T, bool) {
-	if rc.ct.next >= rc.max {
-		return empty[T]()
-	}
-
-	return rc.ct.Next()
-}
-
-type rangeDownCore[T Integer] struct {
-	ct  *countDownCore[T]
-	min T
-}
-
-func (rc rangeDownCore[T]) Next() (T, bool) {
-	if rc.ct.next <= rc.min {
-		return empty[T]()
-	}
-
-	return rc.ct.Next()
-}
-
-func Range[T Integer](start, end T) Iterator[T] {
+// RangeBy returns an Iterator that begins (inclusively) at the provided start
+// value, approaches the end value by the provided step, and terminates when
+// the end value is reached or passed (exclusive).
+func RangeBy[I constraints.Integer](start, end, step I) Iterator[I] {
 	if start <= end {
-		return FromCore[T](rangeUpCore[T]{
-			ct:  &countUpCore[T]{next: start},
+		return FromCore[I](rangeUpCore[I]{
+			ct:  &countUpByCore[I]{next: start, step: step},
 			max: end,
 		})
 	}
 
-	return FromCore[T](rangeDownCore[T]{
-		ct:  &countDownCore[T]{next: start},
+	return FromCore[I](rangeDownCore[I]{
+		ct:  &countDownByCore[I]{next: start, step: step},
 		min: end,
 	})
+}
+
+type countUpByCore[I constraints.Integer] struct {
+	next I
+	step I
+}
+
+func (cubc *countUpByCore[I]) Next() (next I, ok bool) {
+	next = cubc.next
+	cubc.next += cubc.step
+	return next, true
+}
+
+type countDownByCore[I constraints.Integer] struct {
+	next I
+	step I
+}
+
+func (cdbc *countDownByCore[I]) Next() (next I, ok bool) {
+	next = cdbc.next
+	cdbc.next -= cdbc.step
+	return next, true
+}
+
+type rangeUpCore[I constraints.Integer] struct {
+	ct  *countUpByCore[I]
+	max I
+}
+
+func (rc rangeUpCore[I]) Next() (I, bool) {
+	if rc.ct.next >= rc.max {
+		return empty[I]()
+	}
+
+	return rc.ct.Next()
+}
+
+type rangeDownCore[I constraints.Integer] struct {
+	ct  *countDownByCore[I]
+	min I
+}
+
+func (rc rangeDownCore[I]) Next() (I, bool) {
+	if rc.ct.next <= rc.min {
+		return empty[I]()
+	}
+
+	return rc.ct.Next()
 }

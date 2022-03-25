@@ -1,0 +1,28 @@
+linters:
+  disable-all: true
+  enable:
+    - asciicheck
+    - bidichk
+    - cyclop
+    - deadcode
+    - decorder
+    - dupl
+    - errcheck
+    - exhaustive
+    - exportloopref
+    - goconst
+    - gocritic
+    - goimports
+    - gomnd
+    - gosec
+    - gosimple
+    - govet
+    - lll
+    - misspell
+    - paralleltest
+    - staticcheck
+    - structcheck
+    - unparam
+    - unused
+    - varcheck
+    - wastedassign

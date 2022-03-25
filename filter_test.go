@@ -1,8 +1,10 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
+	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIterator_Filter(t *testing.T) {
@@ -26,4 +28,12 @@ func TestIterator_Filter(t *testing.T) {
 	next, ok = i.Next()
 	assert.Zero(t, next)
 	assert.False(t, ok)
+}
+
+func ExampleIterator_Filter() {
+	i := FromItems(0, 1, 2, 3, 4, 5).Filter(func(el int) bool {
+		return el%2 == 0
+	})
+
+	fmt.Println(i.ToSlice()) // Output: [0 2 4]
 }

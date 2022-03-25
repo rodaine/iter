@@ -1,28 +1,32 @@
 package iter
 
-type chainCore[T any] struct {
-	chain []Core[T]
-}
-
-func (c *chainCore[T]) Next() (T, bool) {
-	if len(c.chain) == 0 {
-		return empty[T]()
+// Chain returns a new Iterator which will first iterate over values from the
+// original iter and then over values from the subsequent iterators in order.
+func (iter Iterator[E]) Chain(iters ...Iterator[E]) Iterator[E] {
+	if len(iters) == 0 {
+		return iter
 	}
 
-	if next, ok := c.chain[0].Next(); ok {
-		return next, ok
-	}
-
-	c.chain = c.chain[1:]
-	return c.Next()
-}
-
-func (iter Iterator[T]) Chain(iters ...Iterator[T]) Iterator[T] {
-	chain := make([]Core[T], 1+len(iters))
-	chain[0] = iter.core.core()
+	chain := make([]Core[E], 1+len(iters))
+	chain[0] = iter.core
 	for i, it := range iters {
-		chain[1+i] = it.core.core()
+		chain[1+i] = it.core
 	}
 
-	return FromCore[T](&chainCore[T]{chain: chain})
+	return FromCore[E](&chainCore[E]{chain: chain})
+}
+
+type chainCore[E any] struct {
+	chain []Core[E]
+}
+
+func (c *chainCore[E]) Next() (E, bool) {
+	for len(c.chain) != 0 {
+		if next, ok := c.chain[0].Next(); ok {
+			return next, ok
+		}
+
+		c.chain = c.chain[1:]
+	}
+	return empty[E]()
 }

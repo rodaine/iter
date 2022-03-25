@@ -1,48 +1,52 @@
 package iter
 
-type takeCore[T any] struct {
-	Core[T]
+// Take returns a new Iterator that limits the number of elements returned to
+// the specified number.
+func (iter Iterator[E]) Take(n uint) Iterator[E] {
+	return FromCore[E](&takeCore[E]{
+		Core: iter.core,
+		n:    n,
+	})
+}
+
+// TakeWhile returns a new Iterator that emits values that match the provided
+// Predicate, stopping after the first non-match.
+func (iter Iterator[E]) TakeWhile(pred Predicate[E]) Iterator[E] {
+	return FromCore[E](&takeWhileCore[E]{
+		Core: iter.core,
+		pred: pred,
+	})
+}
+
+type takeCore[E any] struct {
+	Core[E]
 	n uint
 }
 
-func (tc *takeCore[T]) Next() (T, bool) {
+func (tc *takeCore[E]) Next() (E, bool) {
 	if tc.n == 0 {
-		return empty[T]()
+		return empty[E]()
 	}
 
 	tc.n--
 	return tc.Core.Next()
 }
 
-func (iter Iterator[T]) Take(n uint) Iterator[T] {
-	return FromCore[T](&takeCore[T]{
-		Core: iter.core.core(),
-		n:    n,
-	})
-}
-
-type takeWhileCore[T any] struct {
-	Core[T]
-	Fn   func(T) bool
+type takeWhileCore[E any] struct {
+	Core[E]
+	pred Predicate[E]
 	done bool
 }
 
-func (twc *takeWhileCore[T]) Next() (T, bool) {
+func (twc *takeWhileCore[E]) Next() (E, bool) {
 	if twc.done {
-		return empty[T]()
+		return empty[E]()
 	}
 
 	next, ok := twc.Core.Next()
-	if twc.done = !twc.Fn(next); twc.done {
-		return empty[T]()
+	if twc.done = !twc.pred(next); twc.done {
+		return empty[E]()
 	}
 
 	return next, ok
-}
-
-func (iter Iterator[T]) TakeWhile(fn func(T) bool) Iterator[T] {
-	return FromCore[T](&takeWhileCore[T]{
-		Core: iter.core.core(),
-		Fn:   fn,
-	})
 }

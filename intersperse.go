@@ -1,12 +1,27 @@
 package iter
 
-type intersperseCore[T any] struct {
-	core    *peekCore[T]
-	sep     func() T
+// Intersperse creates a new Iterator which places the provided separator
+// between subsequent elements.
+func (iter Iterator[E]) Intersperse(sep E) Iterator[E] {
+	return iter.IntersperseWith(func() E { return sep })
+}
+
+// IntersperseWith behaves the same as Iterator.Intersperse, but uses the
+// provided function to generate the separator.
+func (iter Iterator[E]) IntersperseWith(sepFn func() E) Iterator[E] {
+	return FromCore[E](&intersperseCore[E]{
+		core: iter.Peekable(),
+		sep:  sepFn,
+	})
+}
+
+type intersperseCore[E any] struct {
+	core    PeekCore[E]
+	sep     func() E
 	sepNext bool
 }
 
-func (i *intersperseCore[T]) Next() (T, bool) {
+func (i *intersperseCore[E]) Next() (E, bool) {
 	if i.sepNext {
 		i.sepNext = false
 		return i.sep(), true
@@ -15,15 +30,4 @@ func (i *intersperseCore[T]) Next() (T, bool) {
 	next, ok := i.core.Next()
 	_, i.sepNext = i.core.Peek()
 	return next, ok
-}
-
-func (iter Iterator[T]) Intersperse(sep T) Iterator[T] {
-	return iter.IntersperseWith(func() T { return sep })
-}
-
-func (iter Iterator[T]) IntersperseWith(fn func() T) Iterator[T] {
-	return FromCore[T](&intersperseCore[T]{
-		core: iter.core,
-		sep:  fn,
-	})
 }

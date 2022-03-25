@@ -1,9 +1,11 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
+	"fmt"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFilterMap(t *testing.T) {
@@ -30,4 +32,14 @@ func TestFilterMap(t *testing.T) {
 	next, ok = i.Next()
 	assert.Zero(t, next)
 	assert.False(t, ok)
+}
+
+func ExampleFilterMap() {
+	sl := FilterMap(
+		FromItems(0, 1, 2, 12),
+		func(n int) (string, bool) {
+			return fmt.Sprintf("%x", n), n%2 == 0
+		}).ToSlice()
+
+	fmt.Println(sl) // Output: [0 2 c]
 }

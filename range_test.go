@@ -1,14 +1,15 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCountUp(t *testing.T) {
 	t.Parallel()
 
-	i := CountUp(123)
+	i := CountUpBy(123, 1)
 
 	next, ok := i.Next()
 	assert.Equal(t, 123, next)
@@ -26,7 +27,7 @@ func TestCountUp(t *testing.T) {
 func TestCountDown(t *testing.T) {
 	t.Parallel()
 
-	i := CountDown(123)
+	i := CountDownBy(123, 1)
 
 	next, ok := i.Next()
 	assert.Equal(t, 123, next)
@@ -47,7 +48,7 @@ func TestRange(t *testing.T) {
 	t.Run("up", func(t *testing.T) {
 		t.Parallel()
 
-		i := Range(0, 3)
+		i := RangeBy(0, 3, 1)
 
 		next, ok := i.Next()
 		assert.Equal(t, 0, next)
@@ -69,7 +70,7 @@ func TestRange(t *testing.T) {
 	t.Run("down", func(t *testing.T) {
 		t.Parallel()
 
-		i := Range(3, 0)
+		i := RangeBy(3, 0, 1)
 
 		next, ok := i.Next()
 		assert.Equal(t, 3, next)

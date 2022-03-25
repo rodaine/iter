@@ -1,5 +1,7 @@
 package iter
 
-func Empty[T any]() Iterator[T] { return FromCoreFunc[T](empty[T]) }
+// Empty returns an Iterator that is already finished, never returning an
+// element.
+func Empty[E any]() Iterator[E] { return FromCoreFunc[E](empty[E]) }
 
-func empty[T any]() (next T, ok bool) { return }
+func empty[E any]() (next E, ok bool) { return }

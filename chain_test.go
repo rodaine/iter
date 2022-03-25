@@ -1,8 +1,10 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
+	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIterator_Chain(t *testing.T) {
@@ -29,4 +31,14 @@ func TestIterator_Chain(t *testing.T) {
 	next, ok = i.Next()
 	assert.Zero(t, next)
 	assert.False(t, ok)
+
+	ci := i.Chain()
+	assert.Equal(t, i, ci)
+}
+
+func ExampleIterator_Chain() {
+	sl := FromItems(0, 1).
+		Chain(FromItems(2, 3)).
+		ToSlice()
+	fmt.Println(sl) // Output: [0 1 2 3]
 }

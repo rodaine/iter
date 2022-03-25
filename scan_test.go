@@ -1,9 +1,10 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestScan(t *testing.T) {

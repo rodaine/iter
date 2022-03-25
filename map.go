@@ -1,54 +1,61 @@
 package iter
 
-type mapCore[T, U any] struct {
-	Core[T]
-	Fn func(t T) U
+// MapFunc converts a value of type A into a value of type B.
+type MapFunc[A, B any] func(from A) (to B)
+
+// Map converts an Iterator of one type, converting it into an Iterator of
+// another, using the provided MapFunc.
+func Map[A, B any](iter Iterator[A], fn MapFunc[A, B]) Iterator[B] {
+	return FromCore[B](mapCore[A, B]{
+		Core: iter.core,
+		fn:   fn,
+	})
 }
 
-func (mc mapCore[T, U]) Next() (U, bool) {
-	next, ok := mc.Core.Next()
-	if !ok {
-		return empty[U]()
-	}
-
-	return mc.Fn(next), true
-}
-
-func Map[T, U any](iter Iterator[T], fn func(T) U) Iterator[U] {
-	return FromCore[U](mapCore[T, U]{
-		Core: iter.core.core(),
+// MapWhile behaves like Map, but will stop emitting values if the provided
+// FilterMapFunc returns false.
+func MapWhile[A, B any](iter Iterator[A], fn FilterMapFunc[A, B]) Iterator[B] {
+	return FromCore[B](&mapWhileCore[A, B]{
+		Core: iter.core,
 		Fn:   fn,
 	})
 }
 
-type mapWhileCore[T, U any] struct {
-	Core[T]
-	Fn   func(t T) (U, bool)
+type mapCore[A, B any] struct {
+	Core[A]
+	fn MapFunc[A, B]
+}
+
+func (mc mapCore[A, B]) Next() (B, bool) {
+	next, ok := mc.Core.Next()
+	if !ok {
+		return empty[B]()
+	}
+
+	return mc.fn(next), true
+}
+
+type mapWhileCore[A, B any] struct {
+	Core[A]
+	Fn   FilterMapFunc[A, B]
 	done bool
 }
 
-func (mwc *mapWhileCore[T, U]) Next() (U, bool) {
+func (mwc *mapWhileCore[A, B]) Next() (B, bool) {
 	if mwc.done {
-		return empty[U]()
+		return empty[B]()
 	}
 
 	next, ok := mwc.Core.Next()
 	if !ok {
 		mwc.done = true
-		return empty[U]()
+		return empty[B]()
 	}
 
 	out, ok := mwc.Fn(next)
 	if mwc.done = !ok; mwc.done {
-		return empty[U]()
+		return empty[B]()
 	}
 
 	return out, true
-}
-
-func MapWhile[T, U any](iter Iterator[T], fn func(T) (U, bool)) Iterator[U] {
-	return FromCore[U](&mapWhileCore[T, U]{
-		Core: iter.core.core(),
-		Fn:   fn,
-	})
 }

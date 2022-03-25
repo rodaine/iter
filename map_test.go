@@ -1,9 +1,10 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMap(t *testing.T) {
@@ -47,6 +48,15 @@ func TestMapWhile(t *testing.T) {
 	assert.Equal(t, "-1", next)
 	assert.True(t, ok)
 
+	next, ok = i.Next()
+	assert.Zero(t, next)
+	assert.False(t, ok)
+
+	next, ok = i.Next()
+	assert.Zero(t, next)
+	assert.False(t, ok)
+
+	i = MapWhile(Empty[int](), func(n int) (string, bool) { return "", true })
 	next, ok = i.Next()
 	assert.Zero(t, next)
 	assert.False(t, ok)

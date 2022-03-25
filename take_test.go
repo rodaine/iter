@@ -1,8 +1,9 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIterator_Take(t *testing.T) {
@@ -40,6 +41,10 @@ func TestIterator_TakeWhile(t *testing.T) {
 	next, ok = i.Next()
 	assert.Equal(t, -1, next)
 	assert.True(t, ok)
+
+	next, ok = i.Next()
+	assert.Zero(t, next)
+	assert.False(t, ok)
 
 	next, ok = i.Next()
 	assert.Zero(t, next)

@@ -1,14 +1,16 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIterator_Peek(t *testing.T) {
 	t.Parallel()
 
-	i := FromItems(0, 1)
+	i := FromItems(0, 1).Peekable()
+	assert.Equal(t, i, i.Peekable())
 
 	peek, ok := i.Peek()
 	assert.Equal(t, 0, peek)

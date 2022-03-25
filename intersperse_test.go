@@ -1,8 +1,10 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
+	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIterator_Intersperse(t *testing.T) {
@@ -41,4 +43,9 @@ func TestIterator_Intersperse(t *testing.T) {
 	next, ok = i.Next()
 	assert.Zero(t, next)
 	assert.False(t, ok)
+}
+
+func ExampleIterator_Intersperse() {
+	sl := FromItems(0, 1, 2).Intersperse(3).ToSlice()
+	fmt.Println(sl) // Output: [0 3 1 3 2]
 }

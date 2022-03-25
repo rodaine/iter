@@ -1,23 +1,30 @@
 package iter
 
-type filterMapCore[T, U any] struct {
-	Core[T]
-	Fn func(T) (U, bool)
+// FilterMapFunc converts a value of type A into B, returning ok as true if the
+// value should be emitted.
+type FilterMapFunc[A, B any] func(from A) (to B, ok bool)
+
+// FilterMap returns an iterator that both filters and maps. The returned
+// iterator yields only yields value for which the supplied FilterMapFunc
+// returns (value, true).
+func FilterMap[A, B any](iter Iterator[A], fn FilterMapFunc[A, B]) Iterator[B] {
+	return FromCore[B](filterMapCore[A, B]{
+		Core: iter.core,
+		fn:   fn,
+	})
 }
 
-func (fmc filterMapCore[T, U]) Next() (U, bool) {
+type filterMapCore[A, B any] struct {
+	Core[A]
+	fn FilterMapFunc[A, B]
+}
+
+func (fmc filterMapCore[_, B]) Next() (B, bool) {
 	for next, ok := fmc.Core.Next(); ok; next, ok = fmc.Core.Next() {
-		if out, ok := fmc.Fn(next); ok {
+		if out, ok := fmc.fn(next); ok {
 			return out, true
 		}
 	}
 
-	return empty[U]()
-}
-
-func FilterMap[T, U any](iter Iterator[T], fn func(T) (U, bool)) Iterator[U] {
-	return FromCore[U](filterMapCore[T, U]{
-		Core: iter.core.core(),
-		Fn:   fn,
-	})
+	return empty[B]()
 }

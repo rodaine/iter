@@ -1,14 +1,15 @@
 package iter
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIterator_Fuse(t *testing.T) {
 	t.Parallel()
 
-	i := Scan(CountUp(0), 0,
+	i := Scan(CountUpBy(0, 1), 0,
 		func(st *int, n int) (int, bool) {
 			*st++
 			return n, *st%2 == 0
