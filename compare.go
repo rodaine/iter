@@ -87,7 +87,7 @@ func (iter Iterator[E]) Compare(other Iterator[E], fn CompareFunc[E]) Equality {
 // based off the Equality of the values returned by the provided KeyFunc.
 func CompareByKey[E any, K constraints.Ordered](a, b Iterator[E], fn KeyFunc[E, K]) Equality {
 	mfn := MapFunc[E, K](fn)
-	ak := Map[E, K](a, mfn)
-	bk := Map[E, K](b, mfn)
+	ak := Map(a, mfn)
+	bk := Map(b, mfn)
 	return Compare(ak, bk)
 }

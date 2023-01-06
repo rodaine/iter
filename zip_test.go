@@ -22,6 +22,7 @@ func TestZip(t *testing.T) {
 
 		next, ok = i.Next()
 		assert.Equal(t, Pair[int, int]{1, 4}, next)
+		assert.True(t, ok)
 
 		next, ok = i.Next()
 		assert.Zero(t, next)
@@ -41,6 +42,7 @@ func TestZip(t *testing.T) {
 
 		next, ok = i.Next()
 		assert.Equal(t, Pair[int, int]{1, 3}, next)
+		assert.True(t, ok)
 
 		next, ok = i.Next()
 		assert.Zero(t, next)

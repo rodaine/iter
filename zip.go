@@ -19,7 +19,7 @@ func Zip[E1, E2 any](a Iterator[E1], b Iterator[E2]) Iterator[Pair[E1, E2]] {
 // Enumerate zips the elements of the provided Iterator with a zero-indexed
 // counter of each element.
 func Enumerate[E any](iter Iterator[E]) Iterator[Pair[int, E]] {
-	return Zip(CountUpBy[int](0, 1), iter)
+	return Zip(CountUpBy(0, 1), iter)
 }
 
 type zipCore[E1, E2 any] struct {

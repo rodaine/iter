@@ -16,6 +16,7 @@ func TestIterator_Fuse(t *testing.T) {
 		})
 
 	next, ok := i.Next()
+	assert.Equal(t, 0, next)
 	assert.False(t, ok)
 
 	next, ok = i.Next()
@@ -23,6 +24,7 @@ func TestIterator_Fuse(t *testing.T) {
 	assert.True(t, ok)
 
 	next, ok = i.Next()
+	assert.Equal(t, 2, next)
 	assert.False(t, ok)
 
 	next, ok = i.Next()
@@ -30,6 +32,7 @@ func TestIterator_Fuse(t *testing.T) {
 	assert.True(t, ok)
 
 	next, ok = i.Next()
+	assert.Equal(t, 4, next)
 	assert.False(t, ok)
 
 	i = i.Fuse()
@@ -38,9 +41,9 @@ func TestIterator_Fuse(t *testing.T) {
 	assert.Equal(t, 5, next)
 	assert.True(t, ok)
 
-	next, ok = i.Next()
+	_, ok = i.Next()
 	assert.False(t, ok)
 
-	next, ok = i.Next()
+	_, ok = i.Next()
 	assert.False(t, ok)
 }
