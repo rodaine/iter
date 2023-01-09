@@ -6,7 +6,7 @@ import "context"
 // Iterator will block until the channel can be received from, and possibly
 // will not terminate until the channel is empty and closed.
 func FromChan[E any](c <-chan E) Iterator[E] {
-	return FromCoreFunc[E](func() (E, bool) {
+	return FromCoreFunc(func() (E, bool) {
 		out, more := <-c
 		return out, more
 	})

@@ -7,7 +7,7 @@ import (
 func ExampleFromCoreFunc() {
 	a, b := 1, 1
 
-	fib := FromCoreFunc[int](func() (int, bool) {
+	fib := FromCoreFunc(func() (int, bool) {
 		out := a
 		a, b = b, a+b
 		return out, true

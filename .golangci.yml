@@ -4,7 +4,6 @@ linters:
     - asciicheck
     - bidichk
     - cyclop
-    - deadcode
     - decorder
     - dupl
     - errcheck
@@ -21,8 +20,5 @@ linters:
     - misspell
     - paralleltest
     - staticcheck
-    - structcheck
     - unparam
     - unused
-    - varcheck
-    - wastedassign

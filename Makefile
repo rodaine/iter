@@ -3,7 +3,7 @@ all: lint test
 
 .PHONY: test
 test:
-	go test -race -cover
+	go test -race -cover ./...
 
 .PHONY: lint
 lint:
