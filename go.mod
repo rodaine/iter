@@ -3,8 +3,8 @@ module github.com/rodaine/iter
 go 1.18
 
 require (
-	github.com/stretchr/testify v1.8.1
-	golang.org/x/exp v0.0.0-20230105202349-8879d0199aa3
+	github.com/stretchr/testify v1.9.0
+	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e
 )
 
 require (
